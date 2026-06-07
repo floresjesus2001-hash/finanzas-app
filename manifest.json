@@ -1,0 +1,17 @@
+{
+  "name": "Control Financiero",
+  "short_name": "Finanzas",
+  "description": "Control de ingresos, gastos y nómina",
+  "start_url": "/finanzas-app/app_control_financiero.html",
+  "display": "standalone",
+  "background_color": "#0C0D10",
+  "theme_color": "#0C0D10",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/floresjesus2001-hash/finanzas-app/main/icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
