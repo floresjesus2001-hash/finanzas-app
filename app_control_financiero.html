@@ -477,27 +477,64 @@ input.amt{font-family:'DM Mono',monospace!important;font-size:44px!important;
   <div class="step active" id="nom-s1">
     <div class="prog-wrap"><div class="prog-meta"><span>Nómina</span><span>1 / 4</span></div>
     <div class="prog-bar"><div class="prog-fill pt" style="width:25%"></div></div></div>
+
     <p class="q">¿A quién vas\na pagar?</p>
-    <p class="q-sub">Selecciona el trabajador</p>
-    <div class="worker-grid">
-      <div class="wchip" onclick="selWorker(this,'David','$30.00')">
+    <p class="q-sub">Estado actual de esta quincena</p>
+
+    <!-- Cards con estado de cada trabajador -->
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px" id="nom-estado-cards">
+      <!-- Se renderizan dinámicamente -->
+      <div id="nom-estado-loading" style="text-align:center;padding:20px 0">
+        <div style="font-size:24px;margin-bottom:8px;animation:spin 1s linear infinite">⟳</div>
+        <div style="font-size:13px;color:var(--mut)">Cargando estado...</div>
+      </div>
+    </div>
+
+    <p class="q" style="font-size:16px;margin-bottom:12px">Selecciona a quién pagar</p>
+    <div class="worker-grid" id="nom-worker-grid">
+      <div class="wchip" id="wchip-David" onclick="selWorker(this,'David','$30.00')">
         <div class="wname">David</div><div class="wsalary">$30.00 / quinc.</div>
       </div>
-      <div class="wchip" onclick="selWorker(this,'Oreana','$120.00')">
+      <div class="wchip" id="wchip-Oreana" onclick="selWorker(this,'Oreana','$120.00')">
         <div class="wname">Oreana</div><div class="wsalary">$120.00 / quinc.</div>
       </div>
-      <div class="wchip" onclick="selWorker(this,'Raúl','$120.00')">
+      <div class="wchip" id="wchip-Raúl" onclick="selWorker(this,'Raúl','$120.00')">
         <div class="wname">Raúl</div><div class="wsalary">$120.00 / quinc.</div>
       </div>
     </div>
   </div>
 
   <div class="step" id="nom-s2">
-    <div class="prog-wrap"><div class="prog-meta"><span>Nómina</span><span>2 / 4</span></div>
-    <div class="prog-bar"><div class="prog-fill pt" style="width:50%"></div></div></div>
+    <div class="prog-wrap"><div class="prog-meta"><span>Nómina</span><span>2 / 5</span></div>
+    <div class="prog-bar"><div class="prog-fill pt" style="width:40%"></div></div></div>
+    <button class="back-btn" onclick="goBack(this)"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> Regresar</button>
+    <p class="q">¿Qué quieres
+registrar?</p>
+    <p class="q-sub" id="nom-tipo-sub">Selecciona el tipo de movimiento</p>
+    <div class="opts">
+      <button class="opt" id="nom-tipo-acum" onclick="selTipoNom(this,'Acumular')">
+        <span class="ic">💰</span>
+        <div>
+          <div style="font-weight:600">Apartar / Acumular</div>
+          <div style="font-size:12px;color:var(--mut);margin-top:2px">Guardar dinero para este trabajador sin transferirlo aún</div>
+        </div>
+      </button>
+      <button class="opt" id="nom-tipo-pagar" onclick="selTipoNom(this,'Pagar')">
+        <span class="ic">✅</span>
+        <div>
+          <div style="font-weight:600">Registrar Pago</div>
+          <div style="font-size:12px;color:var(--mut);margin-top:2px">Marcar dinero que ya fue transferido al trabajador</div>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <div class="step" id="nom-s3">
+    <div class="prog-wrap"><div class="prog-meta"><span>Nómina</span><span>3 / 5</span></div>
+    <div class="prog-bar"><div class="prog-fill pt" style="width:60%"></div></div></div>
     <button class="back-btn" onclick="goBack(this)"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> Regresar</button>
     <p class="q">¿Cuál quincena?</p>
-    <p class="q-sub">Período que estás pagando</p>
+    <p class="q-sub">Período que corresponde</p>
     <div class="qchips">
       <div class="qchip" onclick="selQ(this,'Q1')">
         <div class="qlabel">1ª Quincena</div>
@@ -510,12 +547,12 @@ input.amt{font-family:'DM Mono',monospace!important;font-size:44px!important;
     </div>
   </div>
 
-  <div class="step" id="nom-s3">
-    <div class="prog-wrap"><div class="prog-meta"><span>Nómina</span><span>3 / 4</span></div>
-    <div class="prog-bar"><div class="prog-fill pt" style="width:75%"></div></div></div>
+  <div class="step" id="nom-s4">
+    <div class="prog-wrap"><div class="prog-meta"><span>Nómina</span><span>4 / 5</span></div>
+    <div class="prog-bar"><div class="prog-fill pt" style="width:80%"></div></div></div>
     <button class="back-btn" onclick="goBack(this)"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> Regresar</button>
     <p class="q">Monto y detalles</p>
-    <p class="q-sub" id="nom-hint-monto">Escribe el monto del abono</p>
+    <p class="q-sub" id="nom-hint-monto">Escribe el monto</p>
     <div class="amt-wrap"><span class="amt-pre">$</span><input class="amt" type="number" id="nom-monto" placeholder="0.00" min="0" step="0.01" inputmode="decimal"></div>
     <div class="fwrap"><div class="flabel">Fecha de pago</div><input type="date" id="nom-fecha"></div>
     <div class="fwrap"><div class="flabel">Método de pago</div>
@@ -525,27 +562,27 @@ input.amt{font-family:'DM Mono',monospace!important;font-size:44px!important;
         <option value="Otro">Otro</option>
       </select></div>
     <div class="fwrap"><div class="flabel">Nota / Referencia</div><input type="text" id="nom-nota" placeholder="Ej: Pago completo Q1"></div>
-    <button class="btn bt" onclick="goStep('nom',4)">Ver resumen →</button>
+    <button class="btn bt" onclick="goStep('nom',5)">Ver resumen →</button>
   </div>
 
-  <div class="step" id="nom-s4">
-    <div class="prog-wrap"><div class="prog-meta"><span>Nómina</span><span>4 / 4</span></div>
+  <div class="step" id="nom-s5">
+    <div class="prog-wrap"><div class="prog-meta"><span>Nómina</span><span>5 / 5</span></div>
     <div class="prog-bar"><div class="prog-fill pt" style="width:100%"></div></div></div>
     <button class="back-btn" onclick="goBack(this)"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> Regresar</button>
-    <p class="q">Confirmar abono</p>
+    <p class="q">Confirmar registro</p>
     <div class="scard" id="nom-sum"></div>
     <button class="btn bt" onclick="guardar('nom')">✓ Guardar en Google Sheets</button>
     <button class="btn bgh" onclick="goStep('nom',1)">← Corregir</button>
   </div>
 
-  <div class="step" id="nom-s5">
+  <div class="step" id="nom-s6">
     <div class="success">
       <div class="sico">✅</div>
-      <div class="stit" style="color:var(--tel)">¡Abono registrado!</div>
-      <div class="ssub">El pago de nómina fue guardado<br>en tu Google Sheet.</div>
+      <div class="stit" style="color:var(--tel)" id="nom-ok-title">¡Registrado!</div>
+      <div class="ssub" id="nom-ok-sub">Guardado en tu Google Sheet.</div>
       <div class="scard" id="nom-ok"></div>
     </div>
-    <button class="btn bt" onclick="resetForm('nom')">+ Registrar otro abono</button>
+    <button class="btn bt" onclick="resetForm('nom')">+ Registrar otro</button>
   </div>
 </div>
 
@@ -665,7 +702,7 @@ const S = {
   ing: {cuenta:'',categoria:'',monto:'',descripcion:'',fecha:'',comprobante:'',notas:'',recurrente:'No'},
   gas: {cuenta:'',categoria:'',monto:'',descripcion:'',fecha:'',metodoPago:'',notas:'',recurrente:'No',reponer:'No',cuentaReponer:'',montoRepuesto:''},
   cpp: {acreedor:'',concepto:'',monto:'',fechaVence:'',cuotas:'',cuenta:'',prioridad:'🟡 Media',notas:''},
-  nom: {trabajador:'',quincena:'',monto:'',fecha:'',metodoPago:'Efectivo',nota:''}
+  nom: {trabajador:'',quincena:'',monto:'',fecha:'',metodoPago:'Efectivo',nota:'',tipoMovimiento:'Acumular'}
 };
 
 // Topbar date
@@ -685,6 +722,7 @@ function showScreen(s) {
   document.getElementById('main-title').textContent = TITLES[s];
   document.querySelector('.scroll-body').scrollTop = 0;
   if(s==='res') cargarResumen();
+  if(s==='nom') cargarEstadoNomina();
 }
 
 function goBack(btn) {
@@ -747,7 +785,7 @@ function validate(form, next) {
       if (!S.nom.trabajador) { alert('Selecciona un trabajador'); return false; }
       if (!S.nom.quincena)   { alert('Selecciona una quincena'); return false; }
     }
-    if (next===4) {
+    if (next===5) {
       const m=document.getElementById('nom-monto').value;
       if (!m||parseFloat(m)<=0) { alert('Ingresa un monto válido'); return false; }
       S.nom.monto=m; S.nom.fecha=document.getElementById('nom-fecha').value;
@@ -781,6 +819,25 @@ function setReponer(yes) {
   document.getElementById('rep-fields').style.display=yes?'block':'none';
 }
 
+function selTipoNom(el, tipo) {
+  S.nom.tipoMovimiento = tipo;
+  document.querySelectorAll('#nom-s2 .opt').forEach(o=>o.className='opt');
+  el.classList.add('ot');
+  // Actualizar hint
+  const isPagar = tipo === 'Pagar';
+  document.getElementById('nom-hint-monto').textContent = isPagar
+    ? 'Monto que ya transferiste al trabajador'
+    : 'Monto que estás apartando para este trabajador';
+  // Actualizar título éxito
+  if(document.getElementById('nom-ok-title')) {
+    document.getElementById('nom-ok-title').textContent = isPagar ? '¡Pago registrado!' : '¡Acumulado guardado!';
+    document.getElementById('nom-ok-sub').textContent = isPagar
+      ? 'El pago fue marcado en tu Google Sheet.'
+      : 'El monto apartado fue guardado en tu Google Sheet.';
+  }
+  setTimeout(()=>goStep('nom',3),200);
+}
+
 function selWorker(el, name, salary) {
   document.querySelectorAll('.wchip').forEach(c=>c.classList.remove('wsel'));
   el.classList.add('wsel'); S.nom.trabajador=name;
@@ -803,7 +860,7 @@ function buildSum(form) {
     if (s.reponer==='Sí') rows.push(['Cta. Reponer',s.cuentaReponer||'—'],['Ya repuesto',FM(s.montoRepuesto)||'$0.00']);
   }
   if (form==='cpp') rows=[['Acreedor',s.acreedor],['Concepto',s.concepto],['Monto',FM(s.monto)],['Vencimiento',FD(s.fechaVence)],['Cuotas',s.cuotas||'—'],['Cuenta',s.cuenta||'—'],['Prioridad',s.prioridad]];
-  if (form==='nom') rows=[['Trabajador',s.trabajador],['Quincena',s.quincena==='Q1'?'1ª (días 1-15)':'2ª (días 16-fin)'],['Monto',FM(s.monto)],['Fecha',FD(s.fecha)],['Método',s.metodoPago],['Nota',s.nota||'—']];
+  if (form==='nom') rows=[['Trabajador',s.trabajador],['Tipo',s.tipoMovimiento==='Acumular'?'💰 Apartar/Acumular':'✅ Registrar Pago'],['Quincena',s.quincena==='Q1'?'1ª (días 1-15)':'2ª (días 16-fin)'],['Monto',FM(s.monto)],['Fecha',FD(s.fecha)],['Método',s.metodoPago],['Nota',s.nota||'—']];
   const html=rows.map(([k,v])=>`<div class="srow"><span class="sk">${k}</span><span class="sv">${v||'—'}</span></div>`).join('');
   document.getElementById(form+'-sum').innerHTML=html;
 }
@@ -822,7 +879,7 @@ async function guardar(form) {
   if (form==='cpp') rows=[['Acreedor',s.acreedor],['Monto',FM(s.monto)],['Prioridad',s.prioridad]];
   if (form==='nom') rows=[['Trabajador',s.trabajador],['Quincena',s.quincena],['Monto',FM(s.monto)]];
   document.getElementById(form+'-ok').innerHTML=rows.map(([k,v])=>`<div class="srow"><span class="sk">${k}</span><span class="sv">${v||'—'}</span></div>`).join('');
-  const maxStep={ing:6,gas:7,cpp:5,nom:5};
+  const maxStep={ing:6,gas:7,cpp:5,nom:6};
   document.querySelectorAll('#scr-'+form+' .step').forEach(s=>s.classList.remove('active'));
   document.getElementById(form+'-s'+maxStep[form]).classList.add('active');
   document.querySelector('.scroll-body').scrollTop=0;
@@ -832,9 +889,10 @@ function resetForm(form) {
   if (form==='ing') S.ing={cuenta:'',categoria:'',monto:'',descripcion:'',fecha:'',comprobante:'',notas:'',recurrente:'No'};
   if (form==='gas') S.gas={cuenta:'',categoria:'',monto:'',descripcion:'',fecha:'',metodoPago:'',notas:'',recurrente:'No',reponer:'No',cuentaReponer:'',montoRepuesto:''};
   if (form==='cpp') S.cpp={acreedor:'',concepto:'',monto:'',fechaVence:'',cuotas:'',cuenta:'',prioridad:'🟡 Media',notas:''};
-  if (form==='nom') S.nom={trabajador:'',quincena:'',monto:'',fecha:'',metodoPago:'Efectivo',nota:''};
+  if (form==='nom') S.nom={trabajador:'',quincena:'',monto:'',fecha:'',metodoPago:'Efectivo',nota:'',tipoMovimiento:'Acumular'};
   document.querySelectorAll('#scr-'+form+' .opt').forEach(o=>o.className='opt');
   document.querySelectorAll('#scr-'+form+' .wchip').forEach(c=>c.classList.remove('wsel'));
+  document.querySelectorAll('#nom-s2 .opt').forEach(o=>o.className='opt');
   document.querySelectorAll('#scr-'+form+' .qchip').forEach(c=>c.classList.remove('qsel'));
   document.querySelectorAll('#scr-'+form+' input[type=text],#scr-'+form+' input[type=number],#scr-'+form+' textarea').forEach(i=>i.value='');
   ['ing-fecha','gas-fecha','nom-fecha','cpp-vence'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=TODAY();});
@@ -848,6 +906,112 @@ function resetForm(form) {
 
 
 const FM2 = n => { const v=parseFloat(n)||0; return (v<0?'-$':'$')+Math.abs(v).toLocaleString('es-VE',{minimumFractionDigits:2,maximumFractionDigits:2}); };
+
+
+const WORKERS = [
+  { nombre: 'David',  quincenal: 30 },
+  { nombre: 'Oreana', quincenal: 120 },
+  { nombre: 'Raúl',   quincenal: 120 },
+];
+
+async function cargarEstadoNomina() {
+  const url = localStorage.getItem('scriptUrl')||'';
+  const loading = document.getElementById('nom-estado-loading');
+  const cards   = document.getElementById('nom-estado-cards');
+
+  // Limpiar cards previos excepto loading
+  cards.querySelectorAll('.nom-est-card').forEach(c => c.remove());
+  if (loading) loading.style.display = 'block';
+
+  if (!url) {
+    if (loading) loading.style.display = 'none';
+    // Sin conexión: mostrar cards simples sin datos
+    renderEstadoNomina(null);
+    return;
+  }
+
+  try {
+    const r = await fetch(url + '?accion=resumen');
+    const d = await r.json();
+    if (loading) loading.style.display = 'none';
+    if (d.ok && d.trabajadores) {
+      renderEstadoNomina(d.trabajadores, d.quincenaActual, d.diasPago);
+    } else {
+      renderEstadoNomina(null);
+    }
+  } catch(e) {
+    if (loading) loading.style.display = 'none';
+    renderEstadoNomina(null);
+  }
+}
+
+function renderEstadoNomina(trabajadores, qAct, diasPago) {
+  const cards = document.getElementById('nom-estado-cards');
+  cards.querySelectorAll('.nom-est-card').forEach(c => c.remove());
+
+  // Badge quincena actual
+  if (qAct && diasPago !== undefined) {
+    const badge = document.createElement('div');
+    badge.className = 'nom-est-card';
+    badge.style.cssText = 'background:var(--tbg);border:1px solid var(--tbr);border-radius:var(--rs);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:4px';
+    badge.innerHTML = `<span style="font-size:12px;color:var(--tel);font-weight:600">${qAct==='Q1'?'1ª Quincena (días 1-15)':'2ª Quincena (días 16-fin)'}</span><span style="font-size:12px;color:var(--mut);font-family:'DM Mono',monospace">${diasPago} días restantes</span>`;
+    cards.insertBefore(badge, document.getElementById('nom-estado-loading'));
+  }
+
+  const workers = trabajadores || WORKERS.map(w => ({
+    nombre: w.nombre, quincenal: w.quincenal,
+    acumQ1:0, faltaQ1: w.quincenal, estadoQ1:'❌ Pendiente',
+    acumQ2:0, faltaQ2: w.quincenal, estadoQ2:'❌ Pendiente', totalMes:0
+  }));
+
+  workers.forEach(t => {
+    const q      = qAct || 'Q1';
+    const fondo  = q==='Q1' ? (t.fondoQ1||0)  : (t.fondoQ2||0);
+    const pagado = q==='Q1' ? (t.pagadoQ1||0) : (t.pagadoQ2||0);
+    const falta  = q==='Q1' ? (t.faltaQ1||t.quincenal) : (t.faltaQ2||t.quincenal);
+    const estado = q==='Q1' ? (t.estadoQ1||'') : (t.estadoQ2||'');
+    const pctFondo  = t.quincenal>0 ? Math.min((fondo/t.quincenal)*100,100)  : 0;
+    const pctPagado = t.quincenal>0 ? Math.min((pagado/t.quincenal)*100,100) : 0;
+    const ok = pagado >= t.quincenal;
+    const stColor = ok ? 'var(--grn)' : pagado>0 ? 'var(--amb)' : 'var(--red)';
+    const stBg    = ok ? 'var(--gbg)'  : pagado>0 ? 'var(--abg)'  : 'var(--rbg)';
+
+    const card = document.createElement('div');
+    card.className = 'nom-est-card';
+    card.style.cssText = 'background:var(--card);border:1px solid var(--bor);border-radius:var(--r);padding:14px';
+    card.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div>
+          <div style="font-size:15px;font-weight:600">${t.nombre}</div>
+          <div style="font-size:11px;color:var(--mut);font-family:'DM Mono',monospace">$${t.quincenal.toFixed(2)} / quinc.</div>
+        </div>
+        <div style="background:${stBg};color:${stColor};font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px">${estado||'❌ Pendiente'}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px">
+        <div style="background:var(--abg);border:1px solid #5A3A06;border-radius:8px;padding:8px;text-align:center">
+          <div style="font-size:10px;color:var(--amb);margin-bottom:3px">💰 Apartado</div>
+          <div style="font-size:13px;font-weight:600;font-family:'DM Mono',monospace;color:var(--amb)">${FM2(fondo)}</div>
+        </div>
+        <div style="background:var(--gbg);border:1px solid var(--gbr);border-radius:8px;padding:8px;text-align:center">
+          <div style="font-size:10px;color:var(--grn);margin-bottom:3px">✅ Pagado</div>
+          <div style="font-size:13px;font-weight:600;font-family:'DM Mono',monospace;color:var(--grn)">${FM2(pagado)}</div>
+        </div>
+        <div style="background:var(--rbg);border:1px solid var(--rbr);border-radius:8px;padding:8px;text-align:center">
+          <div style="font-size:10px;color:var(--red);margin-bottom:3px">📋 Falta</div>
+          <div style="font-size:13px;font-weight:600;font-family:'DM Mono',monospace;color:var(--red)">${FM2(Math.max(falta,0))}</div>
+        </div>
+      </div>
+      <div style="height:3px;background:var(--bor);border-radius:2px;position:relative">
+        <div style="height:100%;width:${pctFondo.toFixed(0)}%;background:var(--amb);border-radius:2px;position:absolute;top:0;left:0;opacity:.5"></div>
+        <div style="height:100%;width:${pctPagado.toFixed(0)}%;background:var(--grn);border-radius:2px;position:absolute;top:0;left:0"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:4px">
+        <div style="font-size:10px;color:var(--mut)">🟡 apartado  🟢 pagado</div>
+        <div style="font-size:10px;color:var(--mut)">${pctPagado.toFixed(0)}% pagado</div>
+      </div>`;
+    cards.insertBefore(card, document.getElementById('nom-estado-loading'));
+  });
+}
 
 async function cargarResumen() {
   const url = localStorage.getItem('scriptUrl')||'';
