@@ -1095,13 +1095,12 @@ function renderResumen(d) {
     const fondo  = qAct==='Q1' ? (t.fondoQ1||0)  : (t.fondoQ2||0);
     const pagado = qAct==='Q1' ? (t.pagadoQ1||0) : (t.pagadoQ2||0);
     const falta  = Math.max(t.quincenal - fondo, 0);
-    const estado = qAct==='Q1' ? (t.estadoQ1||'') : (t.estadoQ2||'');
     const pctFondo  = t.quincenal>0 ? Math.min((fondo/t.quincenal)*100,100)  : 0;
     const pctPagado = t.quincenal>0 ? Math.min((pagado/t.quincenal)*100,100) : 0;
-    const ok = pagado >= t.quincenal;
-    const stColor = ok ? 'var(--grn)' : pagado>0 ? 'var(--amb)' : fondo>0 ? 'var(--amb)' : 'var(--red)';
-    const stBg    = ok ? 'var(--gbg)'  : pagado>0||fondo>0 ? 'var(--abg)'  : 'var(--rbg)';
-    const stLabel = ok ? '✅ Pagado' : pagado>0 ? '⏳ Parcial' : fondo>0 ? '💰 Con fondo' : '❌ Pendiente';
+    const ok = fondo >= t.quincenal;
+    const stColor = ok ? 'var(--grn)' : fondo>0 ? 'var(--amb)' : 'var(--red)';
+    const stBg    = ok ? 'var(--gbg)'  : fondo>0 ? 'var(--abg)'  : 'var(--rbg)';
+    const stLabel = ok ? '✅ Completo' : fondo>0 ? '💰 Parcial' : '❌ Pendiente';
     nEl.innerHTML += `
       <div style="background:var(--card);border:1px solid var(--bor);border-radius:var(--r);padding:16px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
