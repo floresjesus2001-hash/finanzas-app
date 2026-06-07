@@ -781,9 +781,14 @@ function validate(form, next) {
     if (next===4) { S.cpp.notas=document.getElementById('cpp-notas').value; }
   }
   if (form==='nom') {
-    if (next===3) {
+    if (next===2) {
       if (!S.nom.trabajador) { alert('Selecciona un trabajador'); return false; }
-      if (!S.nom.quincena)   { alert('Selecciona una quincena'); return false; }
+    }
+    if (next===3) {
+      if (!S.nom.tipoMovimiento) { alert('Selecciona el tipo de movimiento'); return false; }
+    }
+    if (next===4) {
+      if (!S.nom.quincena) { alert('Selecciona una quincena'); return false; }
     }
     if (next===5) {
       const m=document.getElementById('nom-monto').value;
@@ -835,7 +840,12 @@ function selTipoNom(el, tipo) {
       ? 'El pago fue marcado en tu Google Sheet.'
       : 'El monto apartado fue guardado en tu Google Sheet.';
   }
-  setTimeout(()=>goStep('nom',3),200);
+  // Avanzar directamente al paso 3 (quincena) sin validación
+  setTimeout(()=>{
+    document.querySelectorAll('#scr-nom .step').forEach(s=>s.classList.remove('active'));
+    document.getElementById('nom-s3').classList.add('active');
+    document.querySelector('.scroll-body').scrollTop=0;
+  },200);
 }
 
 function selWorker(el, name, salary) {
@@ -848,7 +858,11 @@ function selWorker(el, name, salary) {
 function selQ(el, q) {
   document.querySelectorAll('.qchip').forEach(c=>c.classList.remove('qsel'));
   el.classList.add('qsel'); S.nom.quincena=q;
-  setTimeout(()=>goStep('nom',3),200);
+  setTimeout(()=>{
+    document.querySelectorAll('#scr-nom .step').forEach(s=>s.classList.remove('active'));
+    document.getElementById('nom-s4').classList.add('active');
+    document.querySelector('.scroll-body').scrollTop=0;
+  },200);
 }
 
 function buildSum(form) {
