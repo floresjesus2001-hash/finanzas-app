@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Control Financiero</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0C0D10; --sur:#141519; --card:#1C1E24; --bor:#252830;
+  --txt:#ECEEF2; --mut:#5A5F70; --sub:#2E3140;
+  --grn:#23C97B; --gbg:#0A2318; --gbr:#1A4A30;
+  --red:#F0544D; --rbg:#2A0D0C; --rbr:#5A1A18;
+  --pur:#9D7FEA; --pbg:#1A1230; --pbr:#3D2870;
+  --tel:#1ABCAA; --tbg:#081E1B; --tbr:#0F4038;
+  --amb:#F5A623; --abg:#251A06;
+  --blu:#4DA6FF;
+  --r:16px; --rs:10px; --rx:22px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);
+  display:flex;flex-direction:column;max-width:430px;margin:0 auto;position:relative}
+
+/* ── Topbar ── */
+.topbar{padding:52px 22px 0;flex-shrink:0}
+.topbar-row{display:flex;align-items:flex-start;justify-content:space-between}
+.app-name{font-size:11px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);margin-bottom:4px}
+.screen-title{font-size:26px;font-weight:600;letter-spacing:-0.5px;line-height:1.1}
+.date-chip{background:var(--card);border:1px solid var(--bor);border-radius:20px;
+  padding:5px 12px;font-size:11px;color:var(--mut);font-family:'DM Mono',monospace;white-space:nowrap}
+
+/* ── Tab strip ── */
+.tabs{display:flex;gap:6px;padding:18px 22px 0;flex-shrink:0}
+.tab{flex:1;padding:9px 2px;border:1.5px solid var(--bor);border-radius:var(--rs);
+  background:var(--sur);color:var(--mut);font-family:'DM Sans',sans-serif;
+  font-size:11px;font-weight:500;cursor:pointer;transition:all .15s;text-align:center;line-height:1.3}
+.tab.t-grn{border-color:var(--grn);color:var(--grn);background:var(--gbg)}
+.tab.t-red{border-color:var(--red);color:var(--red);background:var(--rbg)}
+.tab.t-pur{border-color:var(--pur);color:var(--pur);background:var(--pbg)}
+.tab.t-tel{border-color:var(--tel);color:var(--tel);background:var(--tbg)}
+
+/* ── Scroll body ── */
+.scroll-body{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:90px}
+
+/* ── Screens ── */
+.screen{display:none;padding:24px 22px 0}
+.screen.active{display:block}
+
+/* ── Steps ── */
+.step{display:none}
+.step.active{display:block;animation:fu .2s ease}
+@keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── Back button ── */
+.back-btn{display:flex;align-items:center;gap:6px;background:none;border:none;
+  color:var(--mut);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;
+  cursor:pointer;padding:0;margin-bottom:20px;transition:color .15s}
+.back-btn:active{color:var(--txt)}
+.back-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round}
+
+/* ── Progress ── */
+.prog-wrap{margin-bottom:28px}
+.prog-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--mut);
+  font-family:'DM Mono',monospace;margin-bottom:8px}
+.prog-bar{height:2px;background:var(--bor);border-radius:2px}
+.prog-fill{height:100%;border-radius:2px;transition:width .35s ease}
+.pg{background:var(--grn)}.pr{background:var(--red)}.pp{background:var(--pur)}.pt{background:var(--tel)}
+
+/* ── Question ── */
+.q{font-size:24px;font-weight:600;letter-spacing:-0.4px;line-height:1.2;margin-bottom:6px}
+.q-sub{font-size:13px;color:var(--mut);margin-bottom:26px;line-height:1.5}
+
+/* ── Options ── */
+.opts{display:flex;flex-direction:column;gap:9px;margin-bottom:28px}
+.opt{padding:14px 16px;border:1.5px solid var(--bor);border-radius:var(--r);
+  background:var(--sur);color:var(--txt);font-family:'DM Sans',sans-serif;
+  font-size:15px;font-weight:400;cursor:pointer;transition:all .15s;
+  text-align:left;display:flex;align-items:center;gap:12px}
+.opt:active{transform:scale(.98)}
+.opt .ic{font-size:19px;width:26px;text-align:center;flex-shrink:0}
+.og{border-color:var(--grn)!important;background:var(--gbg)!important;color:var(--grn)!important}
+.or{border-color:var(--red)!important;background:var(--rbg)!important;color:var(--red)!important}
+.op{border-color:var(--pur)!important;background:var(--pbg)!important;color:var(--pur)!important}
+.ot{border-color:var(--tel)!important;background:var(--tbg)!important;color:var(--tel)!important}
+
+/* ── Inputs ── */
+.fwrap{margin-bottom:20px}
+.flabel{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.9px;
+  font-weight:500;margin-bottom:8px}
+input[type=text],input[type=number],input[type=date],textarea,select{
+  width:100%;padding:14px 16px;background:var(--sur);border:1.5px solid var(--bor);
+  border-radius:var(--r);color:var(--txt);font-family:'DM Sans',sans-serif;
+  font-size:16px;outline:none;transition:border-color .15s;-webkit-appearance:none;
+  color-scheme:dark}
+input:focus,textarea:focus,select:focus{border-color:var(--blu)}
+select option{background:var(--card)}
+textarea{resize:none;height:80px}
+
+/* ── Big amount ── */
+.amt-wrap{margin-bottom:24px;background:var(--sur);border:1.5px solid var(--bor);
+  border-radius:var(--r);padding:22px 16px;text-align:center}
+.amt-pre{font-size:30px;font-weight:300;color:var(--mut);vertical-align:middle}
+input.amt{font-family:'DM Mono',monospace!important;font-size:44px!important;
+  font-weight:500!important;border:none!important;background:transparent!important;
+  text-align:center!important;padding:0!important;width:100%!important;
+  color:var(--txt)!important;outline:none!important}
+
+/* ── Buttons ── */
+.btn{width:100%;padding:16px;border:none;border-radius:var(--r);
+  font-family:'DM Sans',sans-serif;font-size:16px;font-weight:600;
+  cursor:pointer;transition:all .15s;margin-bottom:10px}
+.btn:active{transform:scale(.98)}
+.bg{background:var(--grn);color:#041A0E}
+.br{background:var(--red);color:#fff}
+.bp{background:var(--pur);color:#0D0820}
+.bt{background:var(--tel);color:#041614}
+.bgh{background:transparent;border:1.5px solid var(--bor);color:var(--mut)}
+
+/* ── Summary card ── */
+.scard{background:var(--card);border:1px solid var(--bor);border-radius:var(--r);
+  padding:16px;margin:16px 0}
+.srow{display:flex;justify-content:space-between;align-items:center;padding:7px 0}
+.srow:not(:last-child){border-bottom:1px solid var(--bor)}
+.sk{font-size:13px;color:var(--mut)}
+.sv{font-size:13px;font-weight:500;font-family:'DM Mono',monospace;text-align:right;max-width:60%}
+
+/* ── Success ── */
+.success{text-align:center;padding:40px 0}
+.sico{font-size:60px;margin-bottom:20px;animation:pop .35s cubic-bezier(.34,1.56,.64,1)}
+@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+.stit{font-size:26px;font-weight:600;margin-bottom:8px}
+.ssub{font-size:14px;color:var(--mut);line-height:1.6}
+
+/* ── Worker chips (nómina) ── */
+.worker-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:28px}
+.wchip{padding:18px 12px;border:1.5px solid var(--bor);border-radius:var(--r);
+  background:var(--sur);cursor:pointer;transition:all .15s;text-align:center}
+.wchip:active{transform:scale(.97)}
+.wchip .wname{font-size:15px;font-weight:600;margin-bottom:4px}
+.wchip .wsalary{font-size:12px;color:var(--mut);font-family:'DM Mono',monospace}
+.wchip.wsel{border-color:var(--tel);background:var(--tbg)}
+.wchip.wsel .wname{color:var(--tel)}
+.wchip.wsel .wsalary{color:var(--tel);opacity:.7}
+
+/* ── Q chips ── */
+.qchips{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:28px}
+.qchip{padding:20px 12px;border:1.5px solid var(--bor);border-radius:var(--r);
+  background:var(--sur);cursor:pointer;transition:all .15s;text-align:center}
+.qchip:active{transform:scale(.97)}
+.qchip .qlabel{font-size:14px;font-weight:600;margin-bottom:4px}
+.qchip .qdates{font-size:11px;color:var(--mut)}
+.qchip.qsel{border-color:var(--tel);background:var(--tbg)}
+.qchip.qsel .qlabel{color:var(--tel)}
+.qchip.qsel .qdates{color:var(--tel);opacity:.7}
+
+/* ── Sección workers resumen ── */
+.nom-summary{display:flex;flex-direction:column;gap:10px;margin-bottom:24px}
+.nom-worker{background:var(--card);border:1px solid var(--bor);border-radius:var(--r);
+  padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
+.nom-left{display:flex;flex-direction:column;gap:2px}
+.nom-name{font-size:15px;font-weight:600}
+.nom-sal{font-size:12px;color:var(--mut);font-family:'DM Mono',monospace}
+.nom-badge{font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px}
+.nb-ok{background:var(--gbg);color:var(--grn);border:1px solid var(--gbr)}
+.nb-pen{background:var(--rbg);color:var(--red);border:1px solid var(--rbr)}
+
+/* ── Config ── */
+.cfg-wrap{padding:4px 0}
+.cfg-title{font-size:18px;font-weight:600;margin-bottom:6px}
+.cfg-sub{font-size:13px;color:var(--mut);margin-bottom:20px;line-height:1.6}
+.status-badge{display:inline-flex;align-items:center;gap:6px;
+  font-size:11px;font-weight:500;padding:5px 12px;border-radius:20px;margin-bottom:22px}
+.sb-ok{background:var(--gbg);color:var(--grn);border:1px solid var(--gbr)}
+.sb-no{background:var(--rbg);color:var(--red);border:1px solid var(--rbr)}
+.sb-wait{background:var(--abg);color:var(--amb);border:1px solid #5A3A06}
+.dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+.divider{height:1px;background:var(--bor);margin:24px 0}
+
+/* ── Bottom nav ── */
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:430px;background:var(--sur);border-top:1px solid var(--bor);
+  display:flex;padding:8px 8px 28px;gap:4px;flex-shrink:0;z-index:100}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:8px 4px;background:none;border:none;cursor:pointer;
+  color:var(--mut);font-family:'DM Sans',sans-serif;font-size:10px;
+  font-weight:500;border-radius:var(--rs);transition:all .15s}
+.nb svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;
+  stroke-linecap:round;stroke-linejoin:round}
+.nb.act-g{color:var(--grn);background:var(--gbg)}
+.nb.act-r{color:var(--red);background:var(--rbg)}
+.nb.act-p{color:var(--pur);background:var(--pbg)}
+.nb.act-t{color:var(--tel);background:var(--tbg)}
+.nb.act-m{color:var(--mut);background:var(--sub)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-row">
+    <div>
+      <div class="app-name">Control Financiero</div>
+      <div class="screen-title" id="main-title">Ingresos</div>
+    </div>
+    <div class="date-chip" id="date-chip"></div>
+  </div>
+  <div class="tabs" id="tab-bar"></div>
+</div>
+
+<div class="scroll-body">
+
+<!-- ══════════════════════════════════════
+     INGRESO
+══════════════════════════════════════ -->
+<div class="screen active" id="scr-ing">
+
+  <div class="step active" id="ing-s1">
+    <div class="prog-wrap"><div class="prog-meta"><span>Ingreso</span><span>1 / 5</span></div>
+    <div class="prog-bar"><div class="prog-fill pg" style="width:20%"></div></div></div>
+    <p class="q">¿A cuál cuenta\nentra el dinero?</p>
+    <p class="q-sub">Selecciona el fondo que recibe este ingreso</p>
+    <div class="opts">
+      <button class="opt" onclick="selOpt(this,'ing','cuenta','Fondo Principal','og')"><span class="ic">🏦</span>Fondo Principal</button>
+      <button class="opt" onclick="selOpt(this,'ing','cuenta','Ganancias de Practi','og')"><span class="ic">💻</span>Ganancias de Practi</button>
+      <button class="opt" onclick="selOpt(this,'ing','cuenta','Adicional Nomina','og')"><span class="ic">💵</span>Adicional Nomina</button>
+    </div>
+  </div>
+
+  <div class="step" id="ing-s2">
+    <div class="prog-wrap"><div class="prog-meta"><span>Ingreso</span><span>2 / 5</span></div>
+    <div class="prog-bar"><div class="prog-fill pg" style="width:40%"></div></div></div>
+    <button class="back-btn" onclick="goBack(this)"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> Regresar</button>
+    <p class="q">¿Qué tipo de\ningreso es?</p>
+    <p class="q-sub">Categoría para el resumen mensual</p>
+    <div class="opts">
+      <button class="opt" onclick="selOpt(this,'ing','categoria','Sueldo','og')"><span class="ic">📅</span>Sueldo</button>
+      <button class="opt" onclick="selOpt(this,'ing','categoria','Freelance','og')"><span class="ic">🖥</span>Freelance</button>
+      <button class="opt" onclick="selOpt(this,'ing','categoria','Negocio','og')"><span class="ic">🏪</span>Negocio</button>
+      <button class="opt" onclick="selOpt(this,'ing','categoria','Inversión','og')"><span class="ic">📈</span>Inversión</button>
+      <button class="opt" onclick="selOpt(this,'ing','categoria','Ahorro','og')"><span class="ic">🏺</span>Ahorro</button>
+      <button class="opt" onclick="selOpt(this,'ing','categoria','Bono','og')"><span class="ic">🎁</span>Bono</button>
+      <button class="opt" onclick="selOpt(this,'ing','categoria','Otro','og')"><span class="ic">➕</span>Otro</button>
+    </div>
+  </div>
+
+  <div class="step" id="ing-s3">
+    <div class="prog-wrap"><div class="prog-meta"><span>Ingreso</span><span>3 / 5</span></div>
+    <div class="prog-bar"><div class="prog-fill pg" style="width:60%"></div></div></div>
+    <button class="back-btn" onclick="goBack(this)"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> Regresar</button>
+    <p class="q">¿Cuánto recibiste?</p>
+    <p class="q-sub">Escribe el monto en dólares</p>
+    <div class="amt-wrap"><span class="amt-pre">$</span><input class="amt" type="number" id="ing-monto" placeholder="0.00" min="0" step="0.01" inputmode="decimal"></div>
+    <div class="fwrap"><div class="flabel">Descripción</div><input type="text" id="ing-desc" placeholder="Ej: Pago proyecto web"></div>
+    <div class="fwrap"><div class="flabel">Fecha</div><input type="date" id="ing-fecha"></div>
+    <button class="btn bg" onclick="goStep('ing',4)">Continuar →</button>
+  </div>
+
+  <div class="step" id="ing-s4">
+    <div class="prog-wrap"><div class="prog-meta"><span>Ingreso</span><span>4 / 5</span></div>
+    <div class="prog-bar"><div class="prog-fill pg" style="width:80%"></div></div></div>
+    <button class="back-btn" onclick="goBack(this)"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> Regresar</button>
+    <p class="q">Detalles adicionales</p>
+    <p class="q-sub">Opcional — puedes dejarlo en blanco</p>
+    <div class="fwrap"><div class="flabel">N° Comprobante</div><input type="text" id="ing-comp" placeholder="Ej: TRF-001"></div>
+    <div class="fwrap"><div class="flabel">Notas</div><textarea id="ing-notas" placeholder="Alguna nota extra..."></textarea></div>
+    <p class="q" style="font-size:17px;margin-bottom:12px">¿Es recurrente?</p>
+    <div class="opts">
+      <button class="opt og" id="ing-rec-no" onclick="selRec('ing','No')"><span class="ic">1️⃣</span>No, es único</button>
+      <button class="opt" id="ing-rec-si" onclick="selRec('ing','Sí')"><span class="ic">🔄</span>Sí, es recurrente</button>
+    </div>
+    <button class="btn bg" onclick="goStep('ing',5)">Ver resumen →</button>
+  </div>
+
+  <div class="step" id="ing-s5">
+    <div class="prog-wrap"><div class="prog-meta"><span>Ingreso</span><span>5 / 5</span></div>
+    <div class="prog-bar"><div class="prog-fill pg" style="width:100%"></div></div></div>
+    <button class="back-btn" onclick="goBack(this)"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> Regresar</button>
+    <p class="q">Confirmar ingreso</p>
+    <p class="q-sub">Revisa los datos antes de guardar</p>
+    <div class="scard" id="ing-sum"></div>
+    <button class="btn bg" onclick="guardar('ing')">✓ Guardar en Google Sheets</button>
+    <button class="btn bgh" onclick="goStep('ing',1)">← Corregir</button>
+  </div>
+
+  <div class="step" id="ing-s6">
+    <div class="success">
+      <div class="sico">✅</div>
+      <div class="stit" style="color:var(--grn)">¡Ingreso guardado!</div>
+      <div class="ssub">Registrado automáticamente<br>en tu Google Sheet.</div>
+      <div class="scard" id="ing-ok"></div>
+    </div>
+    <button class="btn bg" onclick="resetForm('ing')">+ Registrar otro ingreso</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     GASTO
+══════════════════════════════════════ -->
+<div class="screen" id="scr-gas">
+
+  <div class="step active" id="gas-s1">
+    <div class="prog-wrap"><div class="prog-meta"><span>Gasto</span><span>1 / 6</span></div>
+    <div class="prog-bar"><div class="prog-fill pr" style="width:17%"></div></div></div>
+    <p class="q">¿De qué cuenta\nsale el dinero?</p>
+    <p class="q-sub">Fondo que cubre este gasto</p>
+    <div class="opts">
+      <button class="opt" onclick="selOpt(this,'gas','cuenta','Fondo Principal','or')"><span class="ic">🏦</span>Fondo Principal</button>
+      <button class="opt" onclick="selOpt(this,'gas','cuenta','Ganancias de Practi','or')"><span class="ic">💻</span>Ganancias de Practi</button>
+      <button class="opt" onclick="selOpt(this,'gas','cuenta','Adicional Nomina','or')"><span class="ic">💵</span>Adicional Nomina</button>
+    </div>
+  </div>
+
+  <div class="step" id="gas-s2">
+    <div class="prog-wrap"><div class="prog-meta"><span>Gasto</span><span>2 / 6</span></div>
+    <div class="prog-bar"><div class="prog-fill pr" style="width:33%"></div></div></div>
+    <button class="back-btn" onclick="goBack(this)"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> Regresar</button>
+    <p class="q">¿En qué gastaste?</p>
+    <p class="q-sub">Categoría del gasto</p>
+    <div class="opts">
+      <button class="opt" onclick="selOpt(this,'gas','categoria','Alimentación','or')"><span class="ic">🍽</span>Alimentación</button>
+      <button class="opt" onclick="selOpt(this,'gas','categoria','Transporte','or')"><span class="ic">🚗</span>Transporte</button>
+      <button class="opt" onclick="selOpt(this,'gas','categoria','Servicios','or')"><span class="ic">💡</span>Servicios</button>
+      <button class="opt" onclick="selOpt(this,'gas','categoria','Salud','or')"><span class="ic">🏥</span>Salud</button>
+      <button class="opt" onclick="selOpt(this,'gas','categoria','Educación','or')"><span class="ic">📚</span>Educación</button>
+      <button class="opt" onclick="selOpt(this,'gas','categoria','Entretenimiento','or')"><span class="ic">🎮</span>Entretenimiento</button>
+      <button class="opt" onclick="selOpt(this,'gas','categoria','Ropa','or')"><span class="ic">👕</span>Ropa</button>
+      <button class="opt" onclick="selOpt(this,'gas','categoria','Hogar','or')"><span class="ic">🏠</span>Hogar</button>
+      <button class="opt" onclick="selOpt(this,'gas','categoria','Nómina','or')"><span class="ic">👥</span>Nómina</button>
+      <button class="opt" onclick="selOpt(this,'gas','categoria','Deuda','or')"><span class="ic">💳</span>Deuda</button>
+      <button class="opt" onclick="selOpt(this,'gas','categoria','Otro','or')"><span class="ic">➕</span>Otro</button>
+    </div>
+  </div>
+
+  <div class="step" id="gas-s3">
+    <div class="prog-wrap"><div class="prog-meta"><span>Gasto</span><span>3 / 6</span></div>
+    <div class="prog-bar"><div class="prog-fill pr" style="width:50%"></div></div></div>
+    <button class="back-btn" onclick="goBack(this)"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> Regresar</button>
+    <p class="q">¿Cuánto gastaste?</p>
+    <div class="amt-wrap"><span class="amt-pre">$</span><input class="amt" type="number" id="gas-monto" placeholder="0.00" min="0" step="0.01" inputmode="decimal"></div>
+    <div class="fwrap"><div class="flabel">Descripción</div><input type="text" id="gas-desc" placeholder="Ej: Mercado semanal"></div>
+    <div class="fwrap"><div class="flabel">Fecha</div><input type="date" id="gas-fecha"></div>
+    <button class="btn br" onclick="goStep('gas',4)">Continuar →</button>
+  </div>
+
+  <div class="step" id="gas-s4">
+    <div class="prog-wrap"><div class="prog-meta"><span>Gasto</span><span>4 / 6</span></div>
+    <div class="prog-bar"><div class="prog-fill pr" style="width:67%"></div></div></div>
+    <button class="back-btn" onclick="goBack(this)"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> Regresar</button>
+    <p class="q">¿Cómo pagaste?</p>
+    <div class="opts">
+      <button class="opt" onclick="selOpt(this,'gas','metodoPago','Efectivo','or')"><span class="ic">💵</span>Efectivo</button>
+      <button class="opt" onclick="selOpt(this,'gas','metodoPago','Transferencia','or')"><span class="ic">📲</span>Transferencia</button>
+      <button class="opt" onclick="selOpt(this,'gas','metodoPago','Tarjeta Débito','or')"><span class="ic">💳</span>Tarjeta Débito</button>
+      <button class="opt" onclick="selOpt(this,'gas','metodoPago','Tarjeta Crédito','or')"><span class="ic">💳</span>Tarjeta Crédito</button>
+    </div>
+    <div class="fwrap"><div class="flabel">Notas</div><textarea id="gas-notas" placeholder="Nota opcional..."></textarea></div>
+    <button class="btn br" onclick="goStep('gas',5)">Continuar →</button>
+  </div>
+
+  <div class="step" id="gas-s5">
+    <div class="prog-wrap"><div class="prog-meta"><span>Gasto</span><span>5 / 6</span></div>
+    <div class="prog-bar"><div class="prog-fill pr" style="width:83%"></div></div></div>
+    <button class="back-btn" onclick="goBack(this)"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> Regresar</button>
+    <p class="q">¿Necesitas reponer\neste dinero?</p>
+    <p class="q-sub">Si vas a devolver el monto a algún fondo</p>
+    <div class="opts">
+      <button class="opt or" id="gas-rep-no" onclick="setReponer(false)"><span class="ic">✖</span>No, no reponer</button>
+      <button class="opt" id="gas-rep-si" onclick="setReponer(true)"><span class="ic">🔄</span>Sí, necesito reponer</button>
+    </div>
+    <div id="rep-fields" style="display:none">
+      <div class="fwrap"><div class="flabel">¿A qué cuenta repones?</div>
+        <select id="gas-cta-rep">
+          <option value="">Selecciona...</option>
+          <option>Fondo Principal</option><option>Ganancias de Practi</option><option>Adicional Nomina</option>
+        </select></div>
+      <div class="fwrap"><div class="flabel">Monto ya repuesto ($)</div>
+        <input type="number" id="gas-monto-rep" placeholder="0.00" min="0" step="0.01" inputmode="decimal"></div>
+    </div>
+    <button class="btn br" onclick="goStep('gas',6)">Ver resumen →</button>
+  </div>
+
+  <div class="step" id="gas-s6">
+    <div class="prog-wrap"><div class="prog-meta"><span>Gasto</span><span>6 / 6</span></div>
+    <div class="prog-bar"><div class="prog-fill pr" style="width:100%"></div></div></div>
+    <button class="back-btn" onclick="goBack(this)"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> Regresar</button>
+    <p class="q">Confirmar gasto</p>
+    <div class="scard" id="gas-sum"></div>
+    <button class="btn br" onclick="guardar('gas')">✓ Guardar en Google Sheets</button>
+    <button class="btn bgh" onclick="goStep('gas',1)">← Corregir</button>
+  </div>
+
+  <div class="step" id="gas-s7">
+    <div class="success">
+      <div class="sico">✅</div>
+      <div class="stit" style="color:var(--red)">¡Gasto guardado!</div>
+      <div class="ssub">Registrado automáticamente<br>en tu Google Sheet.</div>
+      <div class="scard" id="gas-ok"></div>
+    </div>
+    <button class="btn br" onclick="resetForm('gas')">+ Registrar otro gasto</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     CUENTAS POR PAGAR
+══════════════════════════════════════ -->
+<div class="screen" id="scr-cpp">
+
+  <div class="step active" id="cpp-s1">
+    <div class="prog-wrap"><div class="prog-meta"><span>Por Pagar</span><span>1 / 4</span></div>
+    <div class="prog-bar"><div class="prog-fill pp" style="width:25%"></div></div></div>
+    <p class="q">¿A quién le debes?</p>
+    <div class="fwrap"><div class="flabel">Acreedor / Servicio</div><input type="text" id="cpp-acr" placeholder="Ej: Movistar, Banco..."></div>
+    <div class="fwrap"><div class="flabel">Concepto</div><input type="text" id="cpp-con" placeholder="Ej: Factura internet mayo"></div>
+    <button class="btn bp" onclick="goStep('cpp',2)">Continuar →</button>
+  </div>
+
+  <div class="step" id="cpp-s2">
+    <div class="prog-wrap"><div class="prog-meta"><span>Por Pagar</span><span>2 / 4</span></div>
+    <div class="prog-bar"><div class="prog-fill pp" style="width:50%"></div></div></div>
+    <button class="back-btn" onclick="goBack(this)"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> Regresar</button>
+    <p class="q">Monto y vencimiento</p>
+    <div class="amt-wrap"><span class="amt-pre">$</span><input class="amt" type="number" id="cpp-monto" placeholder="0.00" min="0" step="0.01" inputmode="decimal"></div>
+    <div class="fwrap"><div class="flabel">Fecha de vencimiento</div><input type="date" id="cpp-vence"></div>
+    <div class="fwrap"><div class="flabel">Cuotas (opcional)</div><input type="number" id="cpp-cuotas" placeholder="Ej: 12" min="1" inputmode="numeric"></div>
+    <button class="btn bp" onclick="goStep('cpp',3)">Continuar →</button>
+  </div>
+
+  <div class="step" id="cpp-s3">
+    <div class="prog-wrap"><div class="prog-meta"><span>Por Pagar</span><span>3 / 4</span></div>
+    <div class="prog-bar"><div class="prog-fill pp" style="width:75%"></div></div></div>
+    <button class="back-btn" onclick="goBack(this)"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> Regresar</button>
+    <p class="q">¿Con qué cuenta\nvas a pagar?</p>
+    <div class="opts">
+      <button class="opt" onclick="selOpt(this,'cpp','cuenta','Fondo Principal','op')"><span class="ic">🏦</span>Fondo Principal</button>
+      <button class="opt" onclick="selOpt(this,'cpp','cuenta','Ganancias de Practi','op')"><span class="ic">💻</span>Ganancias de Practi</button>
+      <button class="opt" onclick="selOpt(this,'cpp','cuenta','Adicional Nomina','op')"><span class="ic">💵</span>Adicional Nomina</button>
+    </div>
+    <p class="q" style="font-size:17px;margin-bottom:12px">Prioridad</p>
+    <div class="opts">
+      <button class="opt" onclick="selOpt(this,'cpp','prioridad','🔴 Alta','op')"><span class="ic">🔴</span>Alta — urgente</button>
+      <button class="opt op" id="cpp-prio-def" onclick="selOpt(this,'cpp','prioridad','🟡 Media','op')"><span class="ic">🟡</span>Media — normal</button>
+      <button class="opt" onclick="selOpt(this,'cpp','prioridad','🟢 Baja','op')"><span class="ic">🟢</span>Baja — puede esperar</button>
+    </div>
+    <div class="fwrap" style="margin-top:8px"><div class="flabel">Notas</div><textarea id="cpp-notas" placeholder="Referencia, número de cuenta..."></textarea></div>
+    <button class="btn bp" onclick="goStep('cpp',4)">Ver resumen →</button>
+  </div>
+
+  <div class="step" id="cpp-s4">
+    <div class="prog-wrap"><div class="prog-meta"><span>Por Pagar</span><span>4 / 4</span></div>
+    <div class="prog-bar"><div class="prog-fill pp" style="width:100%"></div></div></div>
+    <button class="back-btn" onclick="goBack(this)"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> Regresar</button>
+    <p class="q">Confirmar cuenta\npor pagar</p>
+    <div class="scard" id="cpp-sum"></div>
+    <button class="btn bp" onclick="guardar('cpp')">✓ Guardar en Google Sheets</button>
+    <button class="btn bgh" onclick="goStep('cpp',1)">← Corregir</button>
+  </div>
+
+  <div class="step" id="cpp-s5">
+    <div class="success">
+      <div class="sico">✅</div>
+      <div class="stit" style="color:var(--pur)">¡Registrada!</div>
+      <div class="ssub">La cuenta por pagar fue agregada<br>a tu Google Sheet.</div>
+      <div class="scard" id="cpp-ok"></div>
+    </div>
+    <button class="btn bp" onclick="resetForm('cpp')">+ Agregar otra</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     NÓMINA
+══════════════════════════════════════ -->
+<div class="screen" id="scr-nom">
+
+  <div class="step active" id="nom-s1">
+    <div class="prog-wrap"><div class="prog-meta"><span>Nómina</span><span>1 / 4</span></div>
+    <div class="prog-bar"><div class="prog-fill pt" style="width:25%"></div></div></div>
+    <p class="q">¿A quién vas\na pagar?</p>
+    <p class="q-sub">Selecciona el trabajador</p>
+    <div class="worker-grid">
+      <div class="wchip" onclick="selWorker(this,'David','$30.00')">
+        <div class="wname">David</div><div class="wsalary">$30.00 / quinc.</div>
+      </div>
+      <div class="wchip" onclick="selWorker(this,'Oreana','$120.00')">
+        <div class="wname">Oreana</div><div class="wsalary">$120.00 / quinc.</div>
+      </div>
+      <div class="wchip" onclick="selWorker(this,'Raúl','$120.00')">
+        <div class="wname">Raúl</div><div class="wsalary">$120.00 / quinc.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step" id="nom-s2">
+    <div class="prog-wrap"><div class="prog-meta"><span>Nómina</span><span>2 / 4</span></div>
+    <div class="prog-bar"><div class="prog-fill pt" style="width:50%"></div></div></div>
+    <button class="back-btn" onclick="goBack(this)"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> Regresar</button>
+    <p class="q">¿Cuál quincena?</p>
+    <p class="q-sub">Período que estás pagando</p>
+    <div class="qchips">
+      <div class="qchip" onclick="selQ(this,'Q1')">
+        <div class="qlabel">1ª Quincena</div>
+        <div class="qdates">Días 1 – 15</div>
+      </div>
+      <div class="qchip" onclick="selQ(this,'Q2')">
+        <div class="qlabel">2ª Quincena</div>
+        <div class="qdates">Días 16 – fin</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step" id="nom-s3">
+    <div class="prog-wrap"><div class="prog-meta"><span>Nómina</span><span>3 / 4</span></div>
+    <div class="prog-bar"><div class="prog-fill pt" style="width:75%"></div></div></div>
+    <button class="back-btn" onclick="goBack(this)"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> Regresar</button>
+    <p class="q">Monto y detalles</p>
+    <p class="q-sub" id="nom-hint-monto">Escribe el monto del abono</p>
+    <div class="amt-wrap"><span class="amt-pre">$</span><input class="amt" type="number" id="nom-monto" placeholder="0.00" min="0" step="0.01" inputmode="decimal"></div>
+    <div class="fwrap"><div class="flabel">Fecha de pago</div><input type="date" id="nom-fecha"></div>
+    <div class="fwrap"><div class="flabel">Método de pago</div>
+      <select id="nom-metodo">
+        <option value="Efectivo">Efectivo</option>
+        <option value="Transferencia">Transferencia</option>
+        <option value="Otro">Otro</option>
+      </select></div>
+    <div class="fwrap"><div class="flabel">Nota / Referencia</div><input type="text" id="nom-nota" placeholder="Ej: Pago completo Q1"></div>
+    <button class="btn bt" onclick="goStep('nom',4)">Ver resumen →</button>
+  </div>
+
+  <div class="step" id="nom-s4">
+    <div class="prog-wrap"><div class="prog-meta"><span>Nómina</span><span>4 / 4</span></div>
+    <div class="prog-bar"><div class="prog-fill pt" style="width:100%"></div></div></div>
+    <button class="back-btn" onclick="goBack(this)"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> Regresar</button>
+    <p class="q">Confirmar abono</p>
+    <div class="scard" id="nom-sum"></div>
+    <button class="btn bt" onclick="guardar('nom')">✓ Guardar en Google Sheets</button>
+    <button class="btn bgh" onclick="goStep('nom',1)">← Corregir</button>
+  </div>
+
+  <div class="step" id="nom-s5">
+    <div class="success">
+      <div class="sico">✅</div>
+      <div class="stit" style="color:var(--tel)">¡Abono registrado!</div>
+      <div class="ssub">El pago de nómina fue guardado<br>en tu Google Sheet.</div>
+      <div class="scard" id="nom-ok"></div>
+    </div>
+    <button class="btn bt" onclick="resetForm('nom')">+ Registrar otro abono</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     CONFIG
+══════════════════════════════════════ -->
+<div class="screen" id="scr-cfg">
+  <div class="cfg-wrap">
+    <div class="cfg-title">Configuración</div>
+    <div class="cfg-sub">Pega la URL de tu Google Apps Script para sincronizar con el Sheet automáticamente.</div>
+    <div id="status-badge" class="status-badge sb-no"><div class="dot"></div><span>Sin conectar</span></div>
+    <div class="fwrap">
+      <div class="flabel">URL del Google Apps Script</div>
+      <textarea id="cfg-url" style="height:100px;font-size:12px;font-family:'DM Mono',monospace" placeholder="https://script.google.com/macros/s/XXXXX.../exec"></textarea>
+    </div>
+    <button class="btn bgh" onclick="testConn()" style="margin-bottom:10px">🔗 Probar conexión</button>
+    <button class="btn" style="background:var(--blu);color:#fff" onclick="saveConfig()">Guardar URL</button>
+    <div class="divider"></div>
+    <div class="cfg-title" style="font-size:15px;margin-bottom:6px">Sin conexión</div>
+    <div class="cfg-sub">Si no tienes el script aún, la app igual funciona — al guardar verás el resumen del registro para copiarlo manualmente al Sheet.</div>
+  </div>
+</div>
+
+</div><!-- /scroll-body -->
+
+<!-- Bottom nav -->
+<nav class="bnav">
+  <button class="nb act-g" id="nb-ing" onclick="showScreen('ing')">
+    <svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>Ingreso
+  </button>
+  <button class="nb" id="nb-gas" onclick="showScreen('gas')">
+    <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"/></svg>Gasto
+  </button>
+  <button class="nb" id="nb-cpp" onclick="showScreen('cpp')">
+    <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18M8 13h2M8 16h4"/></svg>Por Pagar
+  </button>
+  <button class="nb" id="nb-nom" onclick="showScreen('nom')">
+    <svg viewBox="0 0 24 24"><circle cx="9" cy="7" r="3"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75M21 21v-2a4 4 0 0 0-3-3.85"/></svg>Nómina
+  </button>
+  <button class="nb" id="nb-cfg" onclick="showScreen('cfg')">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v3M12 20v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M1 12h3M20 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>Config
+  </button>
+</nav>
+
+<script>
+const TODAY = () => new Date().toISOString().split('T')[0];
+const FD = d => { if(!d) return '—'; const [y,m,dd]=d.split('-'); return `${dd}/${m}/${y}`; };
+const FM = n => n ? '$'+parseFloat(n).toFixed(2) : '—';
+
+const TITLES = {ing:'Ingresos',gas:'Gastos',cpp:'Por Pagar',nom:'Nómina',cfg:'Configuración'};
+const NAV_CLS = {ing:'act-g',gas:'act-r',cpp:'act-p',nom:'act-t',cfg:'act-m'};
+
+const S = {
+  ing: {cuenta:'',categoria:'',monto:'',descripcion:'',fecha:'',comprobante:'',notas:'',recurrente:'No'},
+  gas: {cuenta:'',categoria:'',monto:'',descripcion:'',fecha:'',metodoPago:'',notas:'',recurrente:'No',reponer:'No',cuentaReponer:'',montoRepuesto:''},
+  cpp: {acreedor:'',concepto:'',monto:'',fechaVence:'',cuotas:'',cuenta:'',prioridad:'🟡 Media',notas:''},
+  nom: {trabajador:'',quincena:'',monto:'',fecha:'',metodoPago:'Efectivo',nota:''}
+};
+
+// Topbar date
+document.getElementById('date-chip').textContent =
+  new Date().toLocaleDateString('es-VE',{weekday:'short',day:'numeric',month:'short'}).replace('.',',');
+
+// Init dates
+['ing-fecha','gas-fecha','nom-fecha','cpp-vence'].forEach(id => {
+  const el = document.getElementById(id); if(el) el.value = TODAY();
+});
+
+function showScreen(s) {
+  document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(el => el.className = 'nb');
+  document.getElementById('scr-'+s).classList.add('active');
+  document.getElementById('nb-'+s).classList.add('nb', NAV_CLS[s]);
+  document.getElementById('main-title').textContent = TITLES[s];
+  document.querySelector('.scroll-body').scrollTop = 0;
+}
+
+function goBack(btn) {
+  const step = btn.closest('.step');
+  const parts = step.id.split('-s');
+  const form = parts[0];
+  const cur  = parseInt(parts[1]);
+  if (cur > 1) {
+    document.querySelectorAll('#scr-'+form+' .step').forEach(s=>s.classList.remove('active'));
+    document.getElementById(form+'-s'+(cur-1)).classList.add('active');
+    document.querySelector('.scroll-body').scrollTop=0;
+  }
+}
+
+function goStep(form, n) {
+  if (!validate(form, n)) return;
+  document.querySelectorAll('#scr-'+form+' .step').forEach(s => s.classList.remove('active'));
+  const t = document.getElementById(form+'-s'+n);
+  if (t) { t.classList.add('active'); document.querySelector('.scroll-body').scrollTop = 0; }
+  if (form==='ing' && n===5) buildSum('ing');
+  if (form==='gas' && n===6) buildSum('gas');
+  if (form==='cpp' && n===4) buildSum('cpp');
+  if (form==='nom' && n===4) buildSum('nom');
+}
+
+function validate(form, next) {
+  if (form==='ing') {
+    if (next===4) {
+      const m=document.getElementById('ing-monto').value, d=document.getElementById('ing-desc').value;
+      if (!m||parseFloat(m)<=0) { alert('Ingresa un monto válido'); return false; }
+      if (!d) { alert('Escribe una descripción'); return false; }
+      S.ing.monto=m; S.ing.descripcion=d; S.ing.fecha=document.getElementById('ing-fecha').value;
+    }
+    if (next===5) { S.ing.comprobante=document.getElementById('ing-comp').value; S.ing.notas=document.getElementById('ing-notas').value; }
+  }
+  if (form==='gas') {
+    if (next===4) {
+      const m=document.getElementById('gas-monto').value, d=document.getElementById('gas-desc').value;
+      if (!m||parseFloat(m)<=0) { alert('Ingresa un monto válido'); return false; }
+      if (!d) { alert('Escribe una descripción'); return false; }
+      S.gas.monto=m; S.gas.descripcion=d; S.gas.fecha=document.getElementById('gas-fecha').value;
+    }
+    if (next===5) { S.gas.notas=document.getElementById('gas-notas').value; }
+    if (next===6) { S.gas.cuentaReponer=document.getElementById('gas-cta-rep').value; S.gas.montoRepuesto=document.getElementById('gas-monto-rep').value; }
+  }
+  if (form==='cpp') {
+    if (next===2) {
+      if (!document.getElementById('cpp-acr').value) { alert('Escribe el acreedor'); return false; }
+      S.cpp.acreedor=document.getElementById('cpp-acr').value; S.cpp.concepto=document.getElementById('cpp-con').value;
+    }
+    if (next===3) {
+      const m=document.getElementById('cpp-monto').value;
+      if (!m||parseFloat(m)<=0) { alert('Ingresa un monto válido'); return false; }
+      S.cpp.monto=m; S.cpp.fechaVence=document.getElementById('cpp-vence').value; S.cpp.cuotas=document.getElementById('cpp-cuotas').value;
+    }
+    if (next===4) { S.cpp.notas=document.getElementById('cpp-notas').value; }
+  }
+  if (form==='nom') {
+    if (next===3) {
+      if (!S.nom.trabajador) { alert('Selecciona un trabajador'); return false; }
+      if (!S.nom.quincena)   { alert('Selecciona una quincena'); return false; }
+    }
+    if (next===4) {
+      const m=document.getElementById('nom-monto').value;
+      if (!m||parseFloat(m)<=0) { alert('Ingresa un monto válido'); return false; }
+      S.nom.monto=m; S.nom.fecha=document.getElementById('nom-fecha').value;
+      S.nom.metodoPago=document.getElementById('nom-metodo').value;
+      S.nom.nota=document.getElementById('nom-nota').value;
+    }
+  }
+  return true;
+}
+
+function selOpt(el, form, field, val, cls) {
+  el.closest('.opts').querySelectorAll('.opt').forEach(o => o.className='opt');
+  el.classList.add(cls); S[form][field]=val;
+  setTimeout(() => {
+    const steps=[...document.querySelectorAll('#scr-'+form+' .step')];
+    const cur=steps.findIndex(s=>s.classList.contains('active'))+1;
+    goStep(form,cur+1);
+  }, 200);
+}
+
+function selRec(form, val) {
+  S[form].recurrente=val;
+  document.getElementById(form+'-rec-si').className='opt'+(val==='Sí'?' og':'');
+  document.getElementById(form+'-rec-no').className='opt'+(val==='No'?' og':'');
+}
+
+function setReponer(yes) {
+  S.gas.reponer=yes?'Sí':'No';
+  document.getElementById('gas-rep-si').className='opt'+(yes?' or':'');
+  document.getElementById('gas-rep-no').className='opt'+(yes?'':' or');
+  document.getElementById('rep-fields').style.display=yes?'block':'none';
+}
+
+function selWorker(el, name, salary) {
+  document.querySelectorAll('.wchip').forEach(c=>c.classList.remove('wsel'));
+  el.classList.add('wsel'); S.nom.trabajador=name;
+  document.getElementById('nom-hint-monto').textContent=`Salario quincenal: ${salary}`;
+  setTimeout(()=>goStep('nom',2),200);
+}
+
+function selQ(el, q) {
+  document.querySelectorAll('.qchip').forEach(c=>c.classList.remove('qsel'));
+  el.classList.add('qsel'); S.nom.quincena=q;
+  setTimeout(()=>goStep('nom',3),200);
+}
+
+function buildSum(form) {
+  let rows=[];
+  const s=S[form];
+  if (form==='ing') rows=[['Cuenta',s.cuenta],['Categoría',s.categoria],['Monto',FM(s.monto)],['Descripción',s.descripcion],['Fecha',FD(s.fecha)],['Recurrente',s.recurrente]];
+  if (form==='gas') {
+    rows=[['Cuenta',s.cuenta],['Categoría',s.categoria],['Monto',FM(s.monto)],['Descripción',s.descripcion],['Fecha',FD(s.fecha)],['Método',s.metodoPago],['Reponer',s.reponer]];
+    if (s.reponer==='Sí') rows.push(['Cta. Reponer',s.cuentaReponer||'—'],['Ya repuesto',FM(s.montoRepuesto)||'$0.00']);
+  }
+  if (form==='cpp') rows=[['Acreedor',s.acreedor],['Concepto',s.concepto],['Monto',FM(s.monto)],['Vencimiento',FD(s.fechaVence)],['Cuotas',s.cuotas||'—'],['Cuenta',s.cuenta||'—'],['Prioridad',s.prioridad]];
+  if (form==='nom') rows=[['Trabajador',s.trabajador],['Quincena',s.quincena==='Q1'?'1ª (días 1-15)':'2ª (días 16-fin)'],['Monto',FM(s.monto)],['Fecha',FD(s.fecha)],['Método',s.metodoPago],['Nota',s.nota||'—']];
+  const html=rows.map(([k,v])=>`<div class="srow"><span class="sk">${k}</span><span class="sv">${v||'—'}</span></div>`).join('');
+  document.getElementById(form+'-sum').innerHTML=html;
+}
+
+async function guardar(form) {
+  const url=localStorage.getItem('scriptUrl')||'';
+  const tipos={ing:'ingreso',gas:'gasto',cpp:'cuenta_por_pagar',nom:'nomina'};
+  const payload={tipo:tipos[form],...S[form]};
+  if (url) {
+    try { await fetch(url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}); } catch(e){}
+  }
+  const s=S[form];
+  let rows=[];
+  if (form==='ing') rows=[['Cuenta',s.cuenta],['Monto',FM(s.monto)],['Fecha',FD(s.fecha)]];
+  if (form==='gas') rows=[['Cuenta',s.cuenta],['Monto',FM(s.monto)],['Reponer',s.reponer]];
+  if (form==='cpp') rows=[['Acreedor',s.acreedor],['Monto',FM(s.monto)],['Prioridad',s.prioridad]];
+  if (form==='nom') rows=[['Trabajador',s.trabajador],['Quincena',s.quincena],['Monto',FM(s.monto)]];
+  document.getElementById(form+'-ok').innerHTML=rows.map(([k,v])=>`<div class="srow"><span class="sk">${k}</span><span class="sv">${v||'—'}</span></div>`).join('');
+  const maxStep={ing:6,gas:7,cpp:5,nom:5};
+  document.querySelectorAll('#scr-'+form+' .step').forEach(s=>s.classList.remove('active'));
+  document.getElementById(form+'-s'+maxStep[form]).classList.add('active');
+  document.querySelector('.scroll-body').scrollTop=0;
+}
+
+function resetForm(form) {
+  if (form==='ing') S.ing={cuenta:'',categoria:'',monto:'',descripcion:'',fecha:'',comprobante:'',notas:'',recurrente:'No'};
+  if (form==='gas') S.gas={cuenta:'',categoria:'',monto:'',descripcion:'',fecha:'',metodoPago:'',notas:'',recurrente:'No',reponer:'No',cuentaReponer:'',montoRepuesto:''};
+  if (form==='cpp') S.cpp={acreedor:'',concepto:'',monto:'',fechaVence:'',cuotas:'',cuenta:'',prioridad:'🟡 Media',notas:''};
+  if (form==='nom') S.nom={trabajador:'',quincena:'',monto:'',fecha:'',metodoPago:'Efectivo',nota:''};
+  document.querySelectorAll('#scr-'+form+' .opt').forEach(o=>o.className='opt');
+  document.querySelectorAll('#scr-'+form+' .wchip').forEach(c=>c.classList.remove('wsel'));
+  document.querySelectorAll('#scr-'+form+' .qchip').forEach(c=>c.classList.remove('qsel'));
+  document.querySelectorAll('#scr-'+form+' input[type=text],#scr-'+form+' input[type=number],#scr-'+form+' textarea').forEach(i=>i.value='');
+  ['ing-fecha','gas-fecha','nom-fecha','cpp-vence'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=TODAY();});
+  if (form==='gas') { document.getElementById('rep-fields').style.display='none'; document.getElementById('gas-rep-no').classList.add('or'); }
+  if (form==='ing') { document.getElementById('ing-rec-no').classList.add('og'); }
+  if (form==='cpp') { document.getElementById('cpp-prio-def').classList.add('op'); }
+  document.querySelectorAll('#scr-'+form+' .step').forEach(s=>s.classList.remove('active'));
+  document.querySelector('#scr-'+form+' .step').classList.add('active');
+  document.querySelector('.scroll-body').scrollTop=0;
+}
+
+function saveConfig() {
+  const url=document.getElementById('cfg-url').value.trim();
+  localStorage.setItem('scriptUrl',url);
+  const b=document.getElementById('status-badge');
+  b.className='status-badge sb-ok'; b.innerHTML='<div class="dot"></div><span>URL guardada ✅</span>';
+}
+
+async function testConn() {
+  const url=document.getElementById('cfg-url').value.trim();
+  const b=document.getElementById('status-badge');
+  if (!url) { alert('Pega la URL primero'); return; }
+  b.className='status-badge sb-wait'; b.innerHTML='<div class="dot"></div><span>Probando...</span>';
+  try {
+    const r=await fetch(url); const d=await r.json();
+    if (d.ok) { b.className='status-badge sb-ok'; b.innerHTML='<div class="dot"></div><span>Conectado ✅</span>'; localStorage.setItem('scriptUrl',url); }
+    else throw 0;
+  } catch { b.className='status-badge sb-no'; b.innerHTML='<div class="dot"></div><span>Error de conexión</span>'; }
+}
+
+window.onload = () => {
+  const saved=localStorage.getItem('scriptUrl');
+  if (saved) {
+    document.getElementById('cfg-url').value=saved;
+    const b=document.getElementById('status-badge');
+    b.className='status-badge sb-ok'; b.innerHTML='<div class="dot"></div><span>URL guardada</span>';
+  }
+  // defaults
+  document.getElementById('gas-rep-no').classList.add('or');
+  document.getElementById('ing-rec-no').classList.add('og');
+  document.getElementById('cpp-prio-def').classList.add('op');
+};
+</script>
+</body>
+</html>
