@@ -195,6 +195,24 @@ input.amt{font-family:'DM Mono',monospace!important;font-size:44px!important;
 .nb.act-t{color:var(--tel);background:var(--tbg)}
 .nb.act-m{color:var(--mut);background:var(--sub)}
 .nb.act-b{color:var(--blu);background:#0A1829}
+
+/* ── Historial ── */
+.htab{flex:1;padding:10px 4px;border:1.5px solid var(--bor);border-radius:var(--rs);
+  background:var(--sur);color:var(--mut);font-family:'DM Sans',sans-serif;
+  font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;text-align:center}
+.active-htab{border-color:var(--blu);color:var(--blu);background:#0A1829}
+.his-item{background:var(--card);border:1px solid var(--bor);border-radius:var(--r);
+  padding:13px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.his-left{display:flex;flex-direction:column;gap:3px;flex:1;min-width:0}
+.his-desc{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.his-meta{font-size:11px;color:var(--mut)}
+.his-right{text-align:right;flex-shrink:0}
+.his-monto{font-size:15px;font-weight:600;font-family:'DM Mono',monospace}
+.his-fecha{font-size:11px;color:var(--mut);margin-top:2px}
+.his-badge{display:inline-block;font-size:10px;font-weight:500;padding:2px 8px;
+  border-radius:20px;margin-top:4px}
+
+
 </style>
 </head>
 <body>
@@ -589,6 +607,58 @@ registrar?</p>
 <!-- ══════════════════════════════════════
      CONFIG
 ══════════════════════════════════════ -->
+
+<!-- ══════════════════════════════════════
+     HISTORIAL
+══════════════════════════════════════ -->
+<div class="screen" id="scr-his">
+
+  <!-- Tab selector -->
+  <div style="display:flex;gap:8px;margin-bottom:20px">
+    <button class="htab active-htab" id="htab-per" onclick="switchHTab('per')">💳 Personal</button>
+    <button class="htab" id="htab-nom" onclick="switchHTab('nom')">👥 Nómina</button>
+  </div>
+
+  <!-- Loading -->
+  <div id="his-loading" style="text-align:center;padding:50px 0">
+    <div style="font-size:32px;margin-bottom:12px;animation:spin 1s linear infinite">⟳</div>
+    <div style="font-size:13px;color:var(--mut)">Cargando historial...</div>
+  </div>
+
+  <!-- Error -->
+  <div id="his-error" style="display:none;text-align:center;padding:40px 0">
+    <div style="font-size:36px;margin-bottom:12px">⚠️</div>
+    <div style="font-size:15px;font-weight:600;margin-bottom:8px">Sin conexión</div>
+    <div style="font-size:13px;color:var(--mut);margin-bottom:20px">Configura la URL del script para ver el historial.</div>
+    <button class="btn bgh" style="max-width:200px;margin:0 auto" onclick="showScreen('cfg')">Ir a Config</button>
+  </div>
+
+  <!-- Personal -->
+  <div id="his-per" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div style="font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:1px">⬆️ Ingresos</div>
+      <div style="font-size:11px;color:var(--grn);font-family:'DM Mono',monospace;font-weight:600" id="his-ing-total"></div>
+    </div>
+    <div id="his-ing-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:24px"></div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div style="font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:1px">⬇️ Gastos</div>
+      <div style="font-size:11px;color:var(--red);font-family:'DM Mono',monospace;font-weight:600" id="his-gas-total"></div>
+    </div>
+    <div id="his-gas-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:24px"></div>
+  </div>
+
+  <!-- Nómina -->
+  <div id="his-nom" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div style="font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:1px">👥 Abonos y Apartados</div>
+      <button onclick="cargarHistorial()" style="background:none;border:1px solid var(--bor);border-radius:20px;color:var(--mut);font-size:11px;padding:4px 12px;cursor:pointer;font-family:'DM Sans',sans-serif">↻</button>
+    </div>
+    <div id="his-nom-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:24px"></div>
+  </div>
+
+</div>
+
 <div class="screen" id="scr-cfg">
   <div class="cfg-wrap">
     <div class="cfg-title">Configuración</div>
@@ -685,6 +755,9 @@ registrar?</p>
   <button class="nb" id="nb-res" onclick="showScreen('res')">
     <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Resumen
   </button>
+  <button class="nb" id="nb-his" onclick="showScreen('his')">
+    <svg viewBox="0 0 24 24"><path d="M12 8v4l3 3M3.05 11a9 9 0 1 0 .5-3"/><path d="M3 4v4h4"/></svg>Historial
+  </button>
   <button class="nb" id="nb-cfg" onclick="showScreen('cfg')">
     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v3M12 20v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M1 12h3M20 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>Config
   </button>
@@ -695,8 +768,8 @@ const TODAY = () => new Date().toISOString().split('T')[0];
 const FD = d => { if(!d) return '—'; const [y,m,dd]=d.split('-'); return `${dd}/${m}/${y}`; };
 const FM = n => n ? '$'+parseFloat(n).toFixed(2) : '—';
 
-const TITLES = {ing:'Ingresos',gas:'Gastos',cpp:'Por Pagar',nom:'Nómina',res:'Resumen',cfg:'Configuración'};
-const NAV_CLS = {ing:'act-g',gas:'act-r',cpp:'act-p',nom:'act-t',res:'act-b',cfg:'act-m'};
+const TITLES = {ing:'Ingresos',gas:'Gastos',cpp:'Por Pagar',nom:'Nómina',res:'Resumen',his:'Historial',cfg:'Configuración'};
+const NAV_CLS = {ing:'act-g',gas:'act-r',cpp:'act-p',nom:'act-t',res:'act-b',his:'act-b',cfg:'act-m'};
 
 const S = {
   ing: {cuenta:'',categoria:'',monto:'',descripcion:'',fecha:'',comprobante:'',notas:'',recurrente:'No'},
@@ -723,6 +796,7 @@ function showScreen(s) {
   document.querySelector('.scroll-body').scrollTop = 0;
   if(s==='res') cargarResumen();
   if(s==='nom') cargarEstadoNomina();
+  if(s==='his') cargarHistorial();
 }
 
 function goBack(btn) {
@@ -1148,6 +1222,139 @@ function renderResumen(d) {
   // Por pagar
   document.getElementById('res-cpp-total').textContent = FM2(d.totalPendientePagar);
   document.getElementById('res-prox-fecha').textContent = d.proximaFechaPago ? `Próx. vence: ${d.proximaFechaPago}` : 'Sin pagos próximos';
+}
+
+
+let historialData = null;
+let hTabActual = 'per';
+
+function switchHTab(tab) {
+  hTabActual = tab;
+  document.getElementById('htab-per').className = 'htab' + (tab==='per'?' active-htab':'');
+  document.getElementById('htab-nom').className = 'htab' + (tab==='nom'?' active-htab':'');
+  if (!historialData) return;
+  document.getElementById('his-per').style.display = tab==='per' ? 'block' : 'none';
+  document.getElementById('his-nom').style.display = tab==='nom' ? 'block' : 'none';
+}
+
+async function cargarHistorial() {
+  const url = localStorage.getItem('scriptUrl')||'';
+  document.getElementById('his-loading').style.display='block';
+  document.getElementById('his-error').style.display='none';
+  document.getElementById('his-per').style.display='none';
+  document.getElementById('his-nom').style.display='none';
+  if (!url) {
+    document.getElementById('his-loading').style.display='none';
+    document.getElementById('his-error').style.display='block';
+    return;
+  }
+  try {
+    const r = await fetch(url+'?accion=historial');
+    const d = await r.json();
+    if (!d.ok) throw new Error();
+    historialData = d;
+    document.getElementById('his-loading').style.display='none';
+    renderHistorial(d);
+  } catch(e) {
+    document.getElementById('his-loading').style.display='none';
+    document.getElementById('his-error').style.display='block';
+  }
+}
+
+function renderHistorial(d) {
+  const CAT_ICONS = {
+    'Sueldo':'📅','Freelance':'🖥','Negocio':'🏪','Inversión':'📈','Ahorro':'🏺',
+    'Bono':'🎁','Alimentación':'🍽','Transporte':'🚗','Servicios':'💡',
+    'Salud':'🏥','Educación':'📚','Entretenimiento':'🎮','Ropa':'👕',
+    'Hogar':'🏠','Deuda':'💳','Nómina':'👥','Otro':'📌'
+  };
+
+  // Ingresos
+  const ingList = document.getElementById('his-ing-list');
+  ingList.innerHTML = '';
+  let totalIng = 0;
+  const ingresos = [...(d.ingresos||[])].reverse();
+  if (ingresos.length === 0) {
+    ingList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--mut);font-size:13px">Sin ingresos registrados</div>';
+  } else {
+    ingresos.forEach(t => {
+      totalIng += parseFloat(t.monto)||0;
+      const ic = CAT_ICONS[t.categoria] || '💰';
+      ingList.innerHTML += `
+        <div class="his-item">
+          <div style="font-size:22px;flex-shrink:0">${ic}</div>
+          <div class="his-left">
+            <div class="his-desc">${t.descripcion||t.categoria}</div>
+            <div class="his-meta">${t.cuenta} · ${t.categoria}</div>
+          </div>
+          <div class="his-right">
+            <div class="his-monto" style="color:var(--grn)">+${FM2(t.monto)}</div>
+            <div class="his-fecha">${t.fecha}</div>
+          </div>
+        </div>`;
+    });
+  }
+  document.getElementById('his-ing-total').textContent = '+' + FM2(totalIng);
+
+  // Gastos
+  const gasList = document.getElementById('his-gas-list');
+  gasList.innerHTML = '';
+  let totalGas = 0;
+  const gastos = [...(d.gastos||[])].reverse();
+  if (gastos.length === 0) {
+    gasList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--mut);font-size:13px">Sin gastos registrados</div>';
+  } else {
+    gastos.forEach(t => {
+      totalGas += parseFloat(t.monto)||0;
+      const ic = CAT_ICONS[t.categoria] || '💸';
+      const repTag = t.reponer==='Sí' ? '<span class="his-badge" style="background:var(--pbg);color:var(--pur)">🔄 Reponer</span>' : '';
+      gasList.innerHTML += `
+        <div class="his-item">
+          <div style="font-size:22px;flex-shrink:0">${ic}</div>
+          <div class="his-left">
+            <div class="his-desc">${t.descripcion||t.categoria}</div>
+            <div class="his-meta">${t.cuenta} · ${t.metodoPago}</div>
+            ${repTag}
+          </div>
+          <div class="his-right">
+            <div class="his-monto" style="color:var(--red)">-${FM2(t.monto)}</div>
+            <div class="his-fecha">${t.fecha}</div>
+          </div>
+        </div>`;
+    });
+  }
+  document.getElementById('his-gas-total').textContent = '-' + FM2(totalGas);
+
+  // Nómina
+  const nomList = document.getElementById('his-nom-list');
+  nomList.innerHTML = '';
+  const nomina = [...(d.nomina||[])].reverse();
+  if (nomina.length === 0) {
+    nomList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--mut);font-size:13px">Sin registros de nómina</div>';
+  } else {
+    nomina.forEach(t => {
+      const isAcum = (t.tipo||'Acumular') === 'Acumular';
+      const color  = isAcum ? 'var(--amb)' : 'var(--grn)';
+      const bg     = isAcum ? 'var(--abg)' : 'var(--gbg)';
+      const label  = isAcum ? '💰 Apartado' : '✅ Pagado';
+      nomList.innerHTML += `
+        <div class="his-item">
+          <div style="background:${bg};border-radius:10px;padding:8px 10px;font-size:13px;font-weight:600;color:${color};flex-shrink:0">${t.trabajador?.split(' ')[0]||'?'}</div>
+          <div class="his-left">
+            <div class="his-desc">${label} · ${t.quincena==='Q1'?'1ª Quinc.':'2ª Quinc.'}</div>
+            <div class="his-meta">${t.metodoPago}${t.nota?' · '+t.nota:''}</div>
+          </div>
+          <div class="his-right">
+            <div class="his-monto" style="color:${color}">${FM2(t.monto)}</div>
+            <div class="his-fecha">${t.fecha}</div>
+          </div>
+        </div>`;
+    });
+  }
+
+  // Mostrar tab activo
+  document.getElementById('his-per').style.display = hTabActual==='per' ? 'block' : 'none';
+  document.getElementById('his-nom').style.display = hTabActual==='nom' ? 'block' : 'none';
 }
 
 function saveConfig() {
