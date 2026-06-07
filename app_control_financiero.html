@@ -1092,13 +1092,16 @@ function renderResumen(d) {
   const qAct = d.quincenaActual || 'Q1';
   document.getElementById('res-dias-pago').textContent = `${d.diasPago} días para pago ${qAct==='Q1'?'1ª':'2ª'} quincena`;
   (d.trabajadores||[]).forEach(t => {
-    const acum = qAct==='Q1' ? t.acumQ1 : t.acumQ2;
-    const falta = qAct==='Q1' ? t.faltaQ1 : t.faltaQ2;
-    const estado = qAct==='Q1' ? t.estadoQ1 : t.estadoQ2;
-    const pct = t.quincenal > 0 ? Math.min((acum/t.quincenal)*100,100) : 0;
-    const ok = falta <= 0;
-    const stColor = ok ? 'var(--grn)' : acum>0 ? 'var(--amb)' : 'var(--red)';
-    const stBg    = ok ? 'var(--gbg)'  : acum>0 ? 'var(--abg)'  : 'var(--rbg)';
+    const fondo  = qAct==='Q1' ? (t.fondoQ1||0)  : (t.fondoQ2||0);
+    const pagado = qAct==='Q1' ? (t.pagadoQ1||0) : (t.pagadoQ2||0);
+    const falta  = qAct==='Q1' ? (t.faltaQ1||t.quincenal) : (t.faltaQ2||t.quincenal);
+    const estado = qAct==='Q1' ? (t.estadoQ1||'') : (t.estadoQ2||'');
+    const pctFondo  = t.quincenal>0 ? Math.min((fondo/t.quincenal)*100,100)  : 0;
+    const pctPagado = t.quincenal>0 ? Math.min((pagado/t.quincenal)*100,100) : 0;
+    const ok = pagado >= t.quincenal;
+    const stColor = ok ? 'var(--grn)' : pagado>0 ? 'var(--amb)' : fondo>0 ? 'var(--amb)' : 'var(--red)';
+    const stBg    = ok ? 'var(--gbg)'  : pagado>0||fondo>0 ? 'var(--abg)'  : 'var(--rbg)';
+    const stLabel = ok ? '✅ Pagado' : pagado>0 ? '⏳ Parcial' : fondo>0 ? '💰 Con fondo' : '❌ Pendiente';
     nEl.innerHTML += `
       <div style="background:var(--card);border:1px solid var(--bor);border-radius:var(--r);padding:16px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
@@ -1106,23 +1109,34 @@ function renderResumen(d) {
             <div style="font-size:15px;font-weight:600">${t.nombre}</div>
             <div style="font-size:11px;color:var(--mut);font-family:'DM Mono',monospace">$${t.quincenal.toFixed(2)} / quinc.</div>
           </div>
-          <div style="background:${stBg};color:${stColor};font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px">${estado||'❌ Pendiente'}</div>
+          <div style="background:${stBg};color:${stColor};font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px">${stLabel}</div>
         </div>
-        <div style="height:4px;background:var(--bor);border-radius:2px;margin-bottom:10px">
-          <div style="height:100%;width:${pct.toFixed(0)}%;background:${stColor};border-radius:2px;transition:width .5s"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px">
+          <div style="background:var(--abg);border:1px solid #5A3A06;border-radius:8px;padding:8px;text-align:center">
+            <div style="font-size:10px;color:var(--amb);margin-bottom:3px">💰 Apartado</div>
+            <div style="font-size:13px;font-weight:600;font-family:'DM Mono',monospace;color:var(--amb)">${FM2(fondo)}</div>
+          </div>
+          <div style="background:var(--gbg);border:1px solid var(--gbr);border-radius:8px;padding:8px;text-align:center">
+            <div style="font-size:10px;color:var(--grn);margin-bottom:3px">✅ Pagado</div>
+            <div style="font-size:13px;font-weight:600;font-family:'DM Mono',monospace;color:var(--grn)">${FM2(pagado)}</div>
+          </div>
+          <div style="background:var(--rbg);border:1px solid var(--rbr);border-radius:8px;padding:8px;text-align:center">
+            <div style="font-size:10px;color:var(--red);margin-bottom:3px">📋 Falta</div>
+            <div style="font-size:13px;font-weight:600;font-family:'DM Mono',monospace;color:var(--red)">${FM2(Math.max(falta,0))}</div>
+          </div>
         </div>
-        <div style="display:flex;justify-content:space-between">
-          <div style="font-size:12px;color:var(--tel)">Acumulado: ${FM2(acum)}</div>
-          ${falta>0?`<div style="font-size:12px;color:var(--red)">Falta: ${FM2(falta)}</div>`:'<div style="font-size:12px;color:var(--grn)">✓ Completo</div>'}
+        <div style="height:4px;background:var(--bor);border-radius:2px;position:relative;margin-bottom:4px">
+          <div style="height:100%;width:${pctFondo.toFixed(0)}%;background:var(--amb);border-radius:2px;position:absolute;top:0;left:0;opacity:.5"></div>
+          <div style="height:100%;width:${pctPagado.toFixed(0)}%;background:var(--grn);border-radius:2px;position:absolute;top:0;left:0"></div>
         </div>
         <div style="display:flex;gap:8px;margin-top:10px">
           <div style="flex:1;background:var(--sur);border-radius:8px;padding:8px;text-align:center">
-            <div style="font-size:10px;color:var(--mut);margin-bottom:2px">Q1</div>
-            <div style="font-size:12px;font-weight:600;font-family:'DM Mono',monospace">${FM2(t.acumQ1)}</div>
+            <div style="font-size:10px;color:var(--mut);margin-bottom:2px">Apartado Q1</div>
+            <div style="font-size:12px;font-weight:600;font-family:'DM Mono',monospace;color:var(--amb)">${FM2(t.fondoQ1||0)}</div>
           </div>
           <div style="flex:1;background:var(--sur);border-radius:8px;padding:8px;text-align:center">
-            <div style="font-size:10px;color:var(--mut);margin-bottom:2px">Q2</div>
-            <div style="font-size:12px;font-weight:600;font-family:'DM Mono',monospace">${FM2(t.acumQ2)}</div>
+            <div style="font-size:10px;color:var(--mut);margin-bottom:2px">Apartado Q2</div>
+            <div style="font-size:12px;font-weight:600;font-family:'DM Mono',monospace;color:var(--amb)">${FM2(t.fondoQ2||0)}</div>
           </div>
           <div style="flex:1;background:var(--sur);border-radius:8px;padding:8px;text-align:center">
             <div style="font-size:10px;color:var(--mut);margin-bottom:2px">Mes total</div>
