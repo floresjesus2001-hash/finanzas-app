@@ -478,7 +478,7 @@ input.amt{font-family:'DM Mono',monospace!important;font-size:44px!important;
     <div class="prog-wrap"><div class="prog-meta"><span>Nómina</span><span>1 / 4</span></div>
     <div class="prog-bar"><div class="prog-fill pt" style="width:25%"></div></div></div>
 
-    <p class="q">¿A quién vas\na pagar?</p>
+    <p class="q">¿A quién vas<br>a pagar?</p>
     <p class="q-sub">Estado actual de esta quincena</p>
 
     <!-- Cards con estado de cada trabajador -->
@@ -982,7 +982,7 @@ function renderEstadoNomina(trabajadores, qAct, diasPago) {
     const q      = qAct || 'Q1';
     const fondo  = q==='Q1' ? (t.fondoQ1||0)  : (t.fondoQ2||0);
     const pagado = q==='Q1' ? (t.pagadoQ1||0) : (t.pagadoQ2||0);
-    const falta  = q==='Q1' ? (t.faltaQ1||t.quincenal) : (t.faltaQ2||t.quincenal);
+    const falta  = Math.max(t.quincenal - fondo, 0);
     const estado = q==='Q1' ? (t.estadoQ1||'') : (t.estadoQ2||'');
     const pctFondo  = t.quincenal>0 ? Math.min((fondo/t.quincenal)*100,100)  : 0;
     const pctPagado = t.quincenal>0 ? Math.min((pagado/t.quincenal)*100,100) : 0;
@@ -999,7 +999,7 @@ function renderEstadoNomina(trabajadores, qAct, diasPago) {
           <div style="font-size:15px;font-weight:600">${t.nombre}</div>
           <div style="font-size:11px;color:var(--mut);font-family:'DM Mono',monospace">$${t.quincenal.toFixed(2)} / quinc.</div>
         </div>
-        <div style="background:${stBg};color:${stColor};font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px">${estado||'❌ Pendiente'}</div>
+        <div style="background:${stBg};color:${stColor};font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px">${ok?'✅ Pagado':pagado>0?'⏳ Parcial':fondo>0?'💰 Con fondo':'❌ Pendiente'}</div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px">
         <div style="background:var(--abg);border:1px solid #5A3A06;border-radius:8px;padding:8px;text-align:center">
@@ -1094,7 +1094,7 @@ function renderResumen(d) {
   (d.trabajadores||[]).forEach(t => {
     const fondo  = qAct==='Q1' ? (t.fondoQ1||0)  : (t.fondoQ2||0);
     const pagado = qAct==='Q1' ? (t.pagadoQ1||0) : (t.pagadoQ2||0);
-    const falta  = qAct==='Q1' ? (t.faltaQ1||t.quincenal) : (t.faltaQ2||t.quincenal);
+    const falta  = Math.max(t.quincenal - fondo, 0);
     const estado = qAct==='Q1' ? (t.estadoQ1||'') : (t.estadoQ2||'');
     const pctFondo  = t.quincenal>0 ? Math.min((fondo/t.quincenal)*100,100)  : 0;
     const pctPagado = t.quincenal>0 ? Math.min((pagado/t.quincenal)*100,100) : 0;
@@ -1109,7 +1109,7 @@ function renderResumen(d) {
             <div style="font-size:15px;font-weight:600">${t.nombre}</div>
             <div style="font-size:11px;color:var(--mut);font-family:'DM Mono',monospace">$${t.quincenal.toFixed(2)} / quinc.</div>
           </div>
-          <div style="background:${stBg};color:${stColor};font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px">${stLabel}</div>
+          <div style="background:${stBg};color:${stColor};font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px">${ok?'✅ Pagado':pagado>0?'⏳ Parcial':fondo>0?'💰 Con fondo':'❌ Pendiente'}</div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px">
           <div style="background:var(--abg);border:1px solid #5A3A06;border-radius:8px;padding:8px;text-align:center">
